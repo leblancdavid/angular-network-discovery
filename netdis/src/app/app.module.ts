@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { NetworkDiscoveryService } from './network-discovery.service';
 
 import { NgxElectronModule } from 'ngx-electron';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { NgxElectronModule } from 'ngx-electron';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgxElectronModule
+    NgxElectronModule,
+    HttpClientModule 
   ],
   providers: [NetworkDiscoveryService],
   bootstrap: [AppComponent]

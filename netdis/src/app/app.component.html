@@ -1,10 +1,11 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-Test
-<router-outlet></router-outlet>
+<div style="display: flex; flex-direction: column;">
+    <div *ngIf="isScanning">Looking for devices...</div>
+    <div *ngFor="let d of devices" style="display: flex; flex-direction: column;">
+        <div>{{d.ipAddress}}</div>
+        <div *ngFor="let v of d.versions" style="margin-left: 16px;">
+            {{v.name}} ({{v.version}})
+        </div>
+    </div>
+
+    <button (click)="refresh()">Refresh</button>
+</div>

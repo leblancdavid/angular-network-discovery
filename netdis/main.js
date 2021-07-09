@@ -12,7 +12,8 @@ const {app, BrowserWindow} = require('electron')
           nodeIntegration: true,
           nodeIntegrationInWorker: true,
           backgroundThrottling: false,
-          enableRemoteModule: true
+          enableRemoteModule: true,
+          contextIsolation: false,
         }
       })
 
