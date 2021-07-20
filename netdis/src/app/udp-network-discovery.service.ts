@@ -1,61 +1,48 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ElectronService } from 'ngx-electron';
-import { Observable } from 'rxjs';
 import { NetworkedDevice } from './network-discovery.service';
+
+//declare var instrumentDiscoveryClient: any;
 
 @Injectable({
   providedIn: 'root'
 })
 export class UdpNetworkDiscoveryService {
   
-  private discovery?: any;
   devices = new Array<NetworkedDevice>();
+  instrumentDiscoveryClient: any;
   constructor(private electronService: ElectronService,
     private http: HttpClient) { 
+      if(this.electronService.isElectronApp) {
+        this.devices = [];
+          const dgram =  this.electronService.remote.require('dgram');
+  
+          this.instrumentDiscoveryClient = dgram.createSocket("udp4");
+          this.instrumentDiscoveryClient.bind(4603, '0.0.0.0', () => {
+            this.instrumentDiscoveryClient.setBroadcast(true);
+          });
 
+          this.instrumentDiscoveryClient.on('message', (msg: any, rinfo: any) => {
+            console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+          });
+        }
     }
 
   startDiscovering() {
-    if(this.electronService.isElectronApp) {
-      if(this.discovery == null) {
-        var Discovery = this.electronService.remote.require('udp-discovery').Discovery;
-        this.discovery = new Discovery(4602);
-      }
-
-      var name = 'test';
-      var interval = 500;
-      var available = true;
-
-      var serv = {
-        port: 4602,
-        proto: 'tcp',
-        addrFamily: 'IPv4',
-        bonus: {
-          name: 'Edmond',
-        }
-      };
-      this.discovery.announce(name, serv, interval, available);
-
-      this.discovery.on('MessageBus', function(event: any, data: any) {
-        console.log('event:',event);
-        console.log('data:',data);
+    console.log('Starting discovery');
+    if(this.instrumentDiscoveryClient) {
+      const discoveryMessage = JSON.stringify({
+        status: 'discover'
       });
-
-      this.discovery.on('available', (name: any, data: any, reason: any) => {
-        console.log('available ',name);
-        console.log('data',data);
-        console.log('reason',reason);
-        var obj = {a: 1, b: '2', c: true, d: {e: 333}};
-        this.discovery.sendEvent('Hello', obj);
-      
-        console.log(name,':','available:',reason);
-        console.log(data);
-      });
-      
-      this.discovery.on('unavailable', function(name: any, data: any, reason: any) {
-        console.log(name,':','unavailable:',reason);
-        console.log(data);
+      console.log('Sending message: ' + discoveryMessage);
+      this.instrumentDiscoveryClient.send(Buffer.from(discoveryMessage), 0, discoveryMessage.length, 4602, "0.0.0.0", 
+       (err: any) => {
+          if (err) {
+              console.log(err);
+          } else {
+              console.log("Message sent");
+          }
       });
     }
   }

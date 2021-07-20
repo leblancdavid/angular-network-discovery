@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { ElectronService } from 'ngx-electron';
 import { NetworkedDevice } from './network-discovery.service';
 import { UdpNetworkDiscoveryService } from './udp-network-discovery.service';
-
-declare const broadcastInstrumentDiscovery: any;
 
 @Component({
   selector: 'app-root',
@@ -15,10 +14,10 @@ export class AppComponent implements OnInit {
   public devices: NetworkedDevice[];
   public isScanning = false;
   public errorMessage = '';
-
   constructor(private networkDiscoveryService: UdpNetworkDiscoveryService) {
     this.devices = [];
     this.devices.push(new NetworkedDevice('localhost', []));
+
   }
 
   ngOnInit(): void {
@@ -27,11 +26,8 @@ export class AppComponent implements OnInit {
 
 
   refresh() {
-    broadcastInstrumentDiscovery(JSON.stringify({
-      status: 'discover'
-    }));
     this.isScanning = true;
-    //this.networkDiscoveryService.startDiscovering();
+    this.networkDiscoveryService.startDiscovering();
     /*
     this.networkDiscoveryService.discover().subscribe(x => {
       this.devices = x;
