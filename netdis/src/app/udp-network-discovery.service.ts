@@ -9,53 +9,54 @@ import { NetworkedDevice } from './network-discovery.service';
 })
 export class UdpNetworkDiscoveryService {
   
+  private discovery?: any;
   devices = new Array<NetworkedDevice>();
   constructor(private electronService: ElectronService,
-    private http: HttpClient) { }
+    private http: HttpClient) { 
 
-  discover(): Observable<NetworkedDevice[]> {
+    }
 
-
-    return new Observable<NetworkedDevice[]>((observer : any) => {
-
-      if(this.electronService.isElectronApp) {
-        this.devices = [];
-        const netList =  this.electronService.remote.require('network-list');
-        netList.scan({}, (err: any, arr: any[]) => {
-          console.log('scanning network...');
-          forkJoin(arr.map(x => this.checkForSoftware(x.ip))).subscribe(done => {
-            observer.next(this.devices);
-            observer.complete();
-          }, error => {
-            
-            console.error(error);
-            observer.next(this.devices);
-            observer.complete();
-          });
-        });
+  startDiscovering() {
+    if(this.electronService.isElectronApp) {
+      if(this.discovery == null) {
+        var Discovery = this.electronService.remote.require('udp-discovery').Discovery;
+        this.discovery = new Discovery(4602);
       }
-      else {
-        
-        observer.next(this.devices);
-        observer.complete();
-      }
-      
-    });
-    
-  }
 
-  private checkForSoftware(ip: string): Observable<NetworkedDevice> {
-    return new Observable<any>(observer => {
-      this.http.get<DeviceVersion[]>('http://' + ip + ':4601/api/v1/softwareVersions').subscribe((versions : any) => {
-        var d = new NetworkedDevice(ip, versions);
-        this.devices.push(d);
-        observer.next(d);
-        observer.complete();
-      },
-      error => {
-        observer.next(null);
-        observer.complete();
+      var name = 'test';
+      var interval = 500;
+      var available = true;
+
+      var serv = {
+        port: 4602,
+        proto: 'tcp',
+        addrFamily: 'IPv4',
+        bonus: {
+          name: 'Edmond',
+        }
+      };
+      this.discovery.announce(name, serv, interval, available);
+
+      this.discovery.on('MessageBus', function(event: any, data: any) {
+        console.log('event:',event);
+        console.log('data:',data);
       });
-    });
+
+      this.discovery.on('available', (name: any, data: any, reason: any) => {
+        console.log('available ',name);
+        console.log('data',data);
+        console.log('reason',reason);
+        var obj = {a: 1, b: '2', c: true, d: {e: 333}};
+        this.discovery.sendEvent('Hello', obj);
+      
+        console.log(name,':','available:',reason);
+        console.log(data);
+      });
+      
+      this.discovery.on('unavailable', function(name: any, data: any, reason: any) {
+        console.log(name,':','unavailable:',reason);
+        console.log(data);
+      });
+    }
   }
 }

@@ -7,6 +7,7 @@ import { NetworkDiscoveryService } from './network-discovery.service';
 
 import { NgxElectronModule } from 'ngx-electron';
 import { HttpClientModule } from '@angular/common/http';
+import { UdpNetworkDiscoveryService } from './udp-network-discovery.service';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,7 @@ import { HttpClientModule } from '@angular/common/http';
     NgxElectronModule,
     HttpClientModule 
   ],
-  providers: [NetworkDiscoveryService],
+  providers: [NetworkDiscoveryService, UdpNetworkDiscoveryService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

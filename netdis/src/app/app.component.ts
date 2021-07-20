@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { DeviceVersion, NetworkDiscoveryService, NetworkedDevice } from './network-discovery.service';
+import { NetworkedDevice } from './network-discovery.service';
+import { UdpNetworkDiscoveryService } from './udp-network-discovery.service';
+
+declare const broadcastInstrumentDiscovery: any;
 
 @Component({
   selector: 'app-root',
@@ -13,7 +16,7 @@ export class AppComponent implements OnInit {
   public isScanning = false;
   public errorMessage = '';
 
-  constructor(private networkDiscoveryService: NetworkDiscoveryService) {
+  constructor(private networkDiscoveryService: UdpNetworkDiscoveryService) {
     this.devices = [];
     this.devices.push(new NetworkedDevice('localhost', []));
   }
@@ -24,7 +27,12 @@ export class AppComponent implements OnInit {
 
 
   refresh() {
+    broadcastInstrumentDiscovery(JSON.stringify({
+      status: 'discover'
+    }));
     this.isScanning = true;
+    //this.networkDiscoveryService.startDiscovering();
+    /*
     this.networkDiscoveryService.discover().subscribe(x => {
       this.devices = x;
       this.isScanning = false;
@@ -32,5 +40,6 @@ export class AppComponent implements OnInit {
       this.errorMessage = error;
       this.isScanning = false;
     });
+    */
   }
 }

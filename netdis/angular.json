@@ -33,7 +33,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/js/udp-discovery-client.js",
+              "src/assets/js/udp-discovery-listener.js"
+            ]
           },
           "configurations": {
             "production": {
